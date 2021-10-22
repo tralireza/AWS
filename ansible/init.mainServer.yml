@@ -1,0 +1,28 @@
+---
+- hosts: localhost
+  environment:
+    #AWS_ACCESS_KEY:
+    #AWS_SECRET_KEY:
+    #AWS_REGION:
+  connection: local
+  gather_facts: false
+  user: root
+  pre_tasks:
+  - include_vars: vars.yml
+
+  - name: Attach ec2Store
+    ec2_vol:
+      instance: '{{ mainServer_instanceId }}'
+      device_name: /dev/xvdx
+      id: '{{ ec2Store_id }}'
+      state: present
+      delete_on_termination: no
+      region: '{{ ec2_region }}'
+  - name: Associate EIP
+    local_action:
+      module: ec2_eip
+      allow_reassociation: yes
+      device_id: "{{ mainServer_instanceId }}"
+      ip: "{{ eip }}"
+      state: present
+      region: "{{ ec2_region }}"

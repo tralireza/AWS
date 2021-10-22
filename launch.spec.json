@@ -1,0 +1,18 @@
+{
+  "KeyName": "MyRSA",
+  "ImageId": "ami-02354e95b39ca8dec",
+  "SecurityGroupIds": [ "sg-510f241b" ],
+  "InstanceType": "t3a.micro",
+  "SubnetId": "subnet-b1eefdd5",
+  "BlockDeviceMappings": [
+    {
+      "DeviceName": "/dev/xvda",
+      "Ebs": {
+        "DeleteOnTermination": true,
+        "VolumeType": "standard",
+        "VolumeSize": 8,
+        "SnapshotId": "snap-06d919bfeced8496a"
+      }
+    }
+  ]
+}

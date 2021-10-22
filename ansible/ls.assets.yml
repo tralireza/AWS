@@ -1,0 +1,39 @@
+---
+- hosts: localhost
+  environment:
+    #AWS_ACCESS_KEY:
+    #AWS_SECRET_KEY:
+    #AWS_REGION:
+  connection: local
+  gather_facts: false
+  user: alireza
+  pre_tasks:
+    - include_vars: vars.yml
+      tags: vols, epis
+
+  tasks:
+  - name: ListEC2s
+    ec2_instance_facts:
+    register: ec2_instances
+    tags:
+      - ec2s
+  - debug:
+      msg: "{{ ec2_instances }}"
+
+  - name: ListEIPs
+    ec2_eip_facts:
+    register: ec2_eips
+    tags:
+      - eips
+  - debug:
+      msg: "{{ ec2_eips }}"
+
+  - name: ListVols
+    local_action:
+      module: ec2_vol_facts
+      region: "{{ ec2_region }}"
+    register: ec2_vols
+    tags:
+      - vols
+  - debug:
+      msg: "{{ ec2_vols }}"

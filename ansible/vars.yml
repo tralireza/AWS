@@ -1,0 +1,4 @@
+ec2_region: us-east-1
+
+eip: 54.84.117.224
+ec2Store_id: vol-07ab3e2d19c245151
