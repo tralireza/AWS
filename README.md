@@ -9,3 +9,8 @@ mainServer
 # ansible
 1. ansible -i hosts.yml 54.84.117.224 -vv -m shell -a "cd /ec2Store/tomcat8 && nohup bin/catalina.sh start"
 2. ansible -i hosts.yml 54.84.117.224 -vv -m shell -a "named -u named -c /ec2Store/named/named.conf"
+
+# AWS credentials
+```bash
+export AWS_ACCESS_KEY_ID="..."; export AWS_SECRET_ACCESS_KEY="..."
+```
