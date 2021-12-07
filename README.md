@@ -2,7 +2,7 @@ mainServer
 ===
 
 # ansible-playbook
-1. ansible-playbook -i hosts.yml -vv ansible/init.mainServer.yml -e mainServer_instanceId=
+1. ansible-playbook -i hosts.yml -vv ansible/init.mainServer.yml -e mainServer_instanceId=...
 2. ansible-playbook -i hosts.yml -vv ansible/config.mainServer.yml -t ec2Store -e '{"ec2Store_passwd": ""}'
 3. ansible-playbook -i hosts.yml -vv ansible/config.mainServer.yml -t runSvcs
 
