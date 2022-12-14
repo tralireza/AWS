@@ -2,8 +2,8 @@
   "KeyName": "MyRSA",
   "ImageId": "ami-02354e95b39ca8dec",
   "SecurityGroupIds": [ "sg-510f241b" ],
-  "InstanceType": "t3a.micro",
-  "SubnetId": "subnet-f61c6afa",
+  "InstanceType": "t3.micro",
+  "SubnetId": "subnet-b1eefdd5",
   "BlockDeviceMappings": [
     {
       "DeviceName": "/dev/xvda",
