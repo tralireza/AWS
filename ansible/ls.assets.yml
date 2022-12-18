@@ -13,7 +13,7 @@
 
   tasks:
   - name: ListEC2s
-    ec2_instance_facts:
+    ec2_instance_info:
     register: ec2_instances
     tags:
       - ec2s
@@ -21,7 +21,7 @@
       msg: "{{ ec2_instances }}"
 
   - name: ListEIPs
-    ec2_eip_facts:
+    ec2_eip_info:
     register: ec2_eips
     tags:
       - eips
@@ -30,7 +30,7 @@
 
   - name: ListVols
     local_action:
-      module: ec2_vol_facts
+      module: ec2_vol_info
       region: "{{ ec2_region }}"
     register: ec2_vols
     tags:
