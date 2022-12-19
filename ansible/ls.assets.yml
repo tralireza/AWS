@@ -9,7 +9,9 @@
   user: alireza
   pre_tasks:
     - include_vars: vars.yml
-      tags: vols, epis
+      tags: 
+        - ec2s
+        - eips
 
   tasks:
   - name: ListEC2s
