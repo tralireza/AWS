@@ -12,6 +12,7 @@
       tags: 
         - ec2s
         - eips
+        - vols
 
   tasks:
   - name: ListEC2s
