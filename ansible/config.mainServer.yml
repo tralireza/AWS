@@ -10,14 +10,12 @@
     tags:
       tstVars
 
-  - name: Install Packages
-    yum:
+  - yum:
       name: httpd, mod_ssl, screen, postfix, squid, bind, bash, tmux, whois
       state: latest
     tags:
       - ypkg
-  - name: Install OpenJDK (Headless)
-    yum:
+  - yum:
       name: java-1.8.0-openjdk-headless
       state: present
     tags:
@@ -47,15 +45,13 @@
     tags:
       - ec2Store
 
-  - name: Move /etc/{httpd, postfix, squid} to /ec2Store
-    shell: (mv /etc/{{ item }} /etc/{{ item }}.ORIG || true)
+  - shell: (mv /etc/{{ item }} /etc/{{ item }}.ORIG || true)
       && (ln -s /ec2Store/{{ item }} /etc/{{ item }} || true)
     loop: ['httpd', 'postfix', 'squid']
     tags:
       - etcConfig
 
-  - name: StartServices
-    systemd:
+  - systemd:
       state: restarted
       name: '{{ item }}'
       enabled: yes
@@ -63,26 +59,22 @@
     loop: ['httpd', 'squid', 'postfix']
     tags:
       - runSvcs
-  - name: 'Set hostname & Prompt, Restart rsyslog :-)'
-    shell: hostname mainServer && echo "export PS1='\u@\h \w \\\$ '" >> /root/.bashrc && systemctl restart rsyslog
+  - shell: hostname mainServer && echo "export PS1='\u@\h \w \\\$ '" >> /root/.bashrc && systemctl restart rsyslog
     tags:
       - runSvcs
 
-  - name: RootSSHKey
-    shell: sed -e 's/.\{157\}//g' /root/.ssh/authorized_keys >TMP
+  - shell: sed -e 's/.\{157\}//g' /root/.ssh/authorized_keys >TMP
       && mv -f TMP /root/.ssh/authorized_keys
       && chmod 400 /root/.ssh/authorized_keys
 
-  - name: RootSSHKey
-    copy:
+  - copy:
       content: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAq3sysHMyiP78WExRpUEK78ANJS5dZLzPAotoh3gjTt8mNFLYWXFg9wL26Cr2WND1FId76bZ0+TBmW1ZJlEImXE7IfbKfVSNmUBv2v5fYUMyXtNrm2q9HWNRP3Me2WcLgOrjs/ShrMp9B2T1rVQBwV5YRptZwin8K3526XRiRTPCo50ZSfHmErpf7h0AnEasKWC3Nj2T1NPOm13uLS9mFHCsNBH6W1UXLQHQZL7Ycaz0VT1T5R5WkAwXKw8hLS2aMIS43Om0AnGsGDJq6rFN1wj2hd/gJIestlNW4EByaIHJETxy9gMQGEeEkWwRG1hw6+2v1/CST8odo8cBL6H1Y+RpYw1RSnwx2sGzmwJrAhrBk8qNO2DdvTPlYO1jKLXp279BNMqelgxy/iXR3/gG3Z/mM/8XiIH4fi0wYOQIDLwAKm+n7GGKAYCJTwd+OC3/jxpTOQRtj9xhv422OAdUgTctKmJyXjm+KgiecI5QTqzZi2vXxMJnoXIZltM4bSRW6zUNZefenQ8wSx8zpTdBpcBfHXQR3xQeNHQ8IJIFW/bKyk/mywi3yWYPs5auJ5BRSWFAkGdCdFYaFnhzaLUuWFapPJ3E+mDj8J2uNN8f98RBQzT3oO63t1EDamwXydlBHB8JRFFfS+k22wcrWGhbbpOXP6JUgZI7o9D5N/8tHuHE= MyRSA\necdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDkDjSp3lFae9hvtN+EIcAcAUvE12rgsrme1Pkr7U/5Ui9vjBXuHxxpwIkR4t5B5Zc6MGlbCE72O3JfpeVjqoKg= MyECDSA\n"
       dest: /root/.ssh/authorized_keys
       mode: 0400
     tags:
       - setSSHKey
 
-  - name: StateOfVM
-    shell: ps ax | egrep -v "\[.*\].*"
+  - shell: ps ax | egrep -v "\[.*\].*"
     register: vm_state
     tags:
       - vmState
@@ -91,8 +83,7 @@
     tags:
       - vmState
 
-  - name: StateOfNet
-    shell: netstat -nl
+  - shell: netstat -nl
     register: net_state
     tags:
       - vmState
