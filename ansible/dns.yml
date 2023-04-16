@@ -1,0 +1,14 @@
+- hosts: localhost
+  gather_facts: false 
+  pre_tasks:
+    - include_vars: vars.yml
+
+  tasks:
+    - route53:
+        zone: alireza.me
+        record: alireza.me
+        type: AAAA
+        state: present
+        value: "{{ ip6 }}"
+        wait: true
+        overwrite: true
