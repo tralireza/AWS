@@ -1,0 +1,22 @@
+---
+- hosts: mainServer
+  gather_facts: false
+
+  tasks:
+  - shell: ps ax | egrep -v "\[.*\].*"
+    register: vm_state
+    tags:
+      - vmState
+  - debug:
+      msg: "{{ vm_state.stdout_lines }}"
+    tags:
+      - vmState
+
+  - shell: netstat -nltup
+    register: net_state
+    tags:
+      - netState
+  - debug:
+      msg: '{{ net_state.stdout_lines }}'
+    tags:
+      - netState
