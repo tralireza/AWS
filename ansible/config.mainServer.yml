@@ -42,7 +42,7 @@
     tags:
       - ec2Store
 
-  - shell: (mv /etc/{{ item }} /etc/{{ item }}.___ || true)
+  - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
       && (ln -s /ec2Store/{{ item }} /etc/{{ item }} || true)
     loop: ["httpd", "postfix", "squid"]
     tags:
