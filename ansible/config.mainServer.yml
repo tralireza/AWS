@@ -21,54 +21,47 @@
     tags:
       - ypkg
 
-  - name: Check /ec2Store is Mounted?
-    shell: mount | grep /ec2Store | wc -l
+  - shell: mount | grep /ec2Store | wc -l
     args:
       executable: /bin/bash
     register: ec2Store_mountState
     tags:
       - ec2Store
-  - name: Directory /ec2Store
-    file:
+  - file:
       path: /ec2Store
       state: directory
-    when: ec2Store_mountState.stdout == '0'
+    when: ec2Store_mountState.stdout == "0"
     tags:
       - ec2Store
-  - name: CryptSetup & Mount /ec2Store
-    shell: (cryptsetup close ec2Store || true)
+  - shell: (cryptsetup close ec2Store || true)
       && echo {{ ec2Store_passwd|quote }} | cryptsetup create ec2Store /dev/xvdx
       && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
     args:
       executable: /bin/bash
-    when: ec2Store_mountState.stdout == '0'
+    when: ec2Store_mountState.stdout == "0"
     tags:
       - ec2Store
 
-  - shell: (mv /etc/{{ item }} /etc/{{ item }}.ORIG || true)
+  - shell: (mv /etc/{{ item }} /etc/{{ item }}.___ || true)
       && (ln -s /ec2Store/{{ item }} /etc/{{ item }} || true)
-    loop: ['httpd', 'postfix', 'squid']
+    loop: ["httpd", "postfix", "squid"]
     tags:
       - etcConfig
 
+  - shell: hostname mnServer && echo "export PS1='\u@\h \w \\\$ '" >> /root/.bashrc
+    tags:
+      - runSvcs
   - systemd:
       state: restarted
-      name: '{{ item }}'
+      name: "{{ item }}"
       enabled: yes
       masked: no
-    loop: ['httpd', 'squid', 'postfix']
+    loop: ["httpd", "postfix", "squid", "rsyslog"]
     tags:
       - runSvcs
-  - shell: hostname mainServer && echo "export PS1='\u@\h \w \\\$ '" >> /root/.bashrc && systemctl restart rsyslog
-    tags:
-      - runSvcs
-
-  - shell: sed -e 's/.\{157\}//g' /root/.ssh/authorized_keys >TMP
-      && mv -f TMP /root/.ssh/authorized_keys
-      && chmod 400 /root/.ssh/authorized_keys
 
   - copy:
-      content: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAq3sysHMyiP78WExRpUEK78ANJS5dZLzPAotoh3gjTt8mNFLYWXFg9wL26Cr2WND1FId76bZ0+TBmW1ZJlEImXE7IfbKfVSNmUBv2v5fYUMyXtNrm2q9HWNRP3Me2WcLgOrjs/ShrMp9B2T1rVQBwV5YRptZwin8K3526XRiRTPCo50ZSfHmErpf7h0AnEasKWC3Nj2T1NPOm13uLS9mFHCsNBH6W1UXLQHQZL7Ycaz0VT1T5R5WkAwXKw8hLS2aMIS43Om0AnGsGDJq6rFN1wj2hd/gJIestlNW4EByaIHJETxy9gMQGEeEkWwRG1hw6+2v1/CST8odo8cBL6H1Y+RpYw1RSnwx2sGzmwJrAhrBk8qNO2DdvTPlYO1jKLXp279BNMqelgxy/iXR3/gG3Z/mM/8XiIH4fi0wYOQIDLwAKm+n7GGKAYCJTwd+OC3/jxpTOQRtj9xhv422OAdUgTctKmJyXjm+KgiecI5QTqzZi2vXxMJnoXIZltM4bSRW6zUNZefenQ8wSx8zpTdBpcBfHXQR3xQeNHQ8IJIFW/bKyk/mywi3yWYPs5auJ5BRSWFAkGdCdFYaFnhzaLUuWFapPJ3E+mDj8J2uNN8f98RBQzT3oO63t1EDamwXydlBHB8JRFFfS+k22wcrWGhbbpOXP6JUgZI7o9D5N/8tHuHE= MyRSA\necdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBDkDjSp3lFae9hvtN+EIcAcAUvE12rgsrme1Pkr7U/5Ui9vjBXuHxxpwIkR4t5B5Zc6MGlbCE72O3JfpeVjqoKg= MyECDSA\n"
+      content: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAq3sysHMyiP78WExRpUEK78ANJS5dZLzPAotoh3gjTt8mNFLYWXFg9wL26Cr2WND1FId76bZ0+TBmW1ZJlEImXE7IfbKfVSNmUBv2v5fYUMyXtNrm2q9HWNRP3Me2WcLgOrjs/ShrMp9B2T1rVQBwV5YRptZwin8K3526XRiRTPCo50ZSfHmErpf7h0AnEasKWC3Nj2T1NPOm13uLS9mFHCsNBH6W1UXLQHQZL7Ycaz0VT1T5R5WkAwXKw8hLS2aMIS43Om0AnGsGDJq6rFN1wj2hd/gJIestlNW4EByaIHJETxy9gMQGEeEkWwRG1hw6+2v1/CST8odo8cBL6H1Y+RpYw1RSnwx2sGzmwJrAhrBk8qNO2DdvTPlYO1jKLXp279BNMqelgxy/iXR3/gG3Z/mM/8XiIH4fi0wYOQIDLwAKm+n7GGKAYCJTwd+OC3/jxpTOQRtj9xhv422OAdUgTctKmJyXjm+KgiecI5QTqzZi2vXxMJnoXIZltM4bSRW6zUNZefenQ8wSx8zpTdBpcBfHXQR3xQeNHQ8IJIFW/bKyk/mywi3yWYPs5auJ5BRSWFAkGdCdFYaFnhzaLUuWFapPJ3E+mDj8J2uNN8f98RBQzT3oO63t1EDamwXydlBHB8JRFFfS+k22wcrWGhbbpOXP6JUgZI7o9D5N/8tHuHE= MyRSA\necdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABYrSEK/OsEcWv/f/S3/QbtMOlXvsRRRYpdALh5ZBI0nBdZkkJxyK4t8yWTD1yHgngEHk9GN3QugDoll2rk7CxqtAFCqBuyOHccIHYq8FDlgd/lMLwqVQtPN1kQ4s52XSPl5xzujd2pvmlXWz5nzYMxvczHfW3wAHvcdsi8QOPT4tj7nQ== MyEC\n"
       dest: /root/.ssh/authorized_keys
       mode: 0400
     tags:
