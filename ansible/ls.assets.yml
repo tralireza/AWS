@@ -3,40 +3,32 @@
   environment:
     #AWS_ACCESS_KEY:
     #AWS_SECRET_KEY:
-    #AWS_REGION:
   connection: local
   gather_facts: false
   user: alireza
   pre_tasks:
     - include_vars: vars.yml
       tags: 
-        - ec2s
-        - eips
-        - vols
+        - ec2
+        - eip
+        - vol
+        - eni
 
   tasks:
-  - name: ListEC2s
-    ec2_instance_info:
-    register: ec2_instances
+  - ec2_eni_info:
+      filters:
     tags:
-      - ec2s
-  - debug:
-      msg: "{{ ec2_instances }}"
+      - eni
 
-  - name: ListEIPs
-    ec2_eip_info:
-    register: ec2_eips
+  - ec2_instance_info:
     tags:
-      - eips
-  - debug:
-      msg: "{{ ec2_eips }}"
+      - ec2
 
-  - name: ListVols
-    local_action:
-      module: ec2_vol_info
-      region: "{{ ec2_region }}"
-    register: ec2_vols
+  - ec2_eip_info:
     tags:
-      - vols
-  - debug:
-      msg: "{{ ec2_vols }}"
+      - eip
+
+  - ec2_vol_info:
+      region: "{{ region }}"
+    tags:
+      - vol
