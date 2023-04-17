@@ -7,7 +7,7 @@ mainServer
 2.a. ansible -i hosts.yml alireza.me -m shell -a "cat /ec2str/ts.txt"
 3. ansible-playbook -i hosts.yml ansible/config.mainServer.yml -t runSvcs
 3.a. ansible -i hosts.yml alireza.me -m shell -a "netstat -nltup" 
-4. ansible-playbook -i hosts.yml ansible/dns.yml -e '{"ip": ""}'
+4. ansible-playbook -i hosts.yml ansible/dns.yml -e '{"ip6": ""}'
 
 # ansible
 1. ansible -i hosts.yml alireza.me -m shell -a "cd /ec2str/tomcat8 && nohup bin/catalina.sh start"
