@@ -3,27 +3,21 @@
   environment:
     #AWS_ACCESS_KEY:
     #AWS_SECRET_KEY:
-  connection: local
   gather_facts: false
-  user: alireza
-  pre_tasks:
-    - include_vars: vars.yml
 
   tasks:
+  - ec2_eip_info:
+    tags: eip
+
   - ec2_eni_info:
       filters:
-    tags:
-      - eni
+    tags: eni
 
   - ec2_instance_info:
-    tags:
-      - ec2
+    tags: ec2
 
-  - ec2_eip_info:
-    tags:
-      - eip
-
-  - ec2_vol_info:
-      region: "{{ region }}"
-    tags:
-      - vol
+  - block:
+    - include_vars: vars.yml
+    - ec2_vol_info:
+        region: "{{ region }}"
+    tags: vol
