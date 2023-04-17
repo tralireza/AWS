@@ -13,6 +13,7 @@ mainServer
 1. ansible -i hosts.yml alireza.me -m shell -a "cd /ec2str/tomcat8 && nohup bin/catalina.sh start"
 2. ansible -i hosts.yml alireza.me -m shell -a "named -u named -c /ec2str/named/named.conf"
 3. ansible -i hosts.yml alireza.me -m shell -a "echo '* * * * * date >/ec2str/ts.txt' | crontab -"
+4. ansible -i hosts.yml alireza.me -m shell -a "uname -a" > msi.version
 
 # AWS credentials
 ```bash
