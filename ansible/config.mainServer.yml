@@ -65,7 +65,7 @@
       dest: /root/.ssh/authorized_keys
       mode: 0400
     tags:
-      - setSSHKey
+      - aKeySsh
 
   - shell: ps ax | egrep -v "\[.*\].*"
     register: vm_state
