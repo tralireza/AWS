@@ -12,3 +12,14 @@
         value: "{{ ip6 }}"
         wait: true
         overwrite: true
+
+    - route53:
+        zone: alireza.me
+        record: alireza.me
+        type: A
+        state: present
+        value:
+          - "{{ eip }}"
+          - "{{ ip }}"
+        wait: true
+        overwrite: true
