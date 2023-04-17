@@ -8,7 +8,7 @@
   - debug:
       msg: "=> {{ ec2Store_passwd }}   Q: {{ ec2Store_passwd|quote }}"
     tags:
-      tstVars
+      - tVars
 
   - yum:
       name: httpd, mod_ssl, screen, postfix, squid, bind, bash, tmux, whois
@@ -21,13 +21,13 @@
       executable: /bin/bash
     register: ec2Store_mountState
     tags:
-      - ec2Store
+      - ec2str
   - file:
       path: /ec2Store
       state: directory
     when: ec2Store_mountState.stdout == "0"
     tags:
-      - ec2Store
+      - ec2str
   - shell: (cryptsetup close ec2Store || true)
       && echo {{ ec2Store_passwd|quote }} | cryptsetup create ec2Store /dev/xvdx
       && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
@@ -35,7 +35,7 @@
       executable: /bin/bash
     when: ec2Store_mountState.stdout == "0"
     tags:
-      - ec2Store
+      - ec2str
 
   - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
       && (ln -s /ec2Store/{{ item }} /etc/{{ item }} || true)
@@ -60,4 +60,4 @@
       dest: /root/.ssh/authorized_keys
       mode: 0400
     tags:
-      - aKeySsh
+      - keySsh
