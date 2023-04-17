@@ -1,5 +1,5 @@
 ---
-- hosts: mainServer
+- hosts: mnServer 
   vars:
     # ec2Store_passwd: ""
     # -e "{ec2Store_passwd: 'MyPasswd'}"
@@ -13,11 +13,6 @@
   - yum:
       name: httpd, mod_ssl, screen, postfix, squid, bind, bash, tmux, whois
       state: latest
-    tags:
-      - ypkg
-  - yum:
-      name: java-1.8.0-openjdk-headless
-      state: present
     tags:
       - ypkg
 
@@ -66,23 +61,3 @@
       mode: 0400
     tags:
       - aKeySsh
-
-  - shell: ps ax | egrep -v "\[.*\].*"
-    register: vm_state
-    tags:
-      - vmState
-  - debug:
-      msg: "{{ vm_state.stdout_lines }}"
-    tags:
-      - vmState
-
-  - shell: netstat -nl
-    register: net_state
-    tags:
-      - vmState
-      - netState
-  - debug:
-      msg: '{{ net_state.stdout_lines }}'
-    tags:
-      - vmState
-      - netState
