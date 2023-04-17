@@ -8,11 +8,6 @@
   user: alireza
   pre_tasks:
     - include_vars: vars.yml
-      tags: 
-        - ec2
-        - eip
-        - vol
-        - eni
 
   tasks:
   - ec2_eni_info:
