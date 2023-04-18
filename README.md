@@ -4,9 +4,9 @@ mainServer
 # ansible-playbook
 1. ansible-playbook -i hosts.yml ansible/init.mainServer.yml -e msi=...
 2. ansible-playbook -i hosts.yml ansible/config.mainServer.yml -t ec2Store -e '{"ec2Store_passwd": ""}'
-2.a. ansible -i hosts.yml alireza.me -m shell -a "cat /ec2str/ts.txt"
+    + ansible -i hosts.yml alireza.me -m shell -a "cat /ec2str/ts.txt"
 3. ansible-playbook -i hosts.yml ansible/config.mainServer.yml -t runSvcs
-3.a. ansible -i hosts.yml alireza.me -m shell -a "netstat -nltup" 
+    + ansible -i hosts.yml alireza.me -m shell -a "netstat -nltup" 
 4. ansible-playbook -i hosts.yml ansible/dns.yml -e '{"ip6": ""}'
 
 # ansible
