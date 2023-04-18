@@ -43,7 +43,7 @@
     tags:
       - etcConfig
 
-  - shell: hostname mnServer && echo "export PS1='\u@\h \w \\\$ '" >> /root/.bashrc
+  - shell: hostname ec2Server && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
     tags:
       - runSvcs
   - systemd:
