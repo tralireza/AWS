@@ -1,7 +1,7 @@
 {
   "KeyName": "MyRSA",
   "ImageId": "ami-069aabeee6f53e7bf",
-  "SecurityGroupIds": [ "sg-510f241b" ],
+  "SecurityGroupIds": [ "sg-028a1c6e15aefc531" ],
   "InstanceType": "t3.micro",
   "SubnetId": "subnet-77a4f131",
   "BlockDeviceMappings": [
