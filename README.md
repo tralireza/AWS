@@ -1,4 +1,4 @@
-mainServer
+ec2Server
 ===
 
 # ansible-playbook
