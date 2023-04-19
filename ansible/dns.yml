@@ -8,6 +8,7 @@
         zone: alireza.me
         record: alireza.me
         type: AAAA
+        ttl: 300
         state: present
         value: "{{ ip6 }}"
         wait: true
