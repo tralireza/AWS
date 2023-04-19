@@ -1,10 +1,8 @@
 ---
-owner: 964863621686
-
 region: us-east-1
 eip: 54.84.117.224
 ip6: 2600:1f10:475a:be0a::27
 
-msi: i-07d988cb35c87b1bd
+msi: i-063ee82e897dabe60
 nic: eni-052f450ca28e3f5c6
 ec2str: vol-0e5915a7aab256915
