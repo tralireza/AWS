@@ -1,8 +1,6 @@
 ---
 - hosts: localhost
   environment:
-    #AWS_ACCESS_KEY:
-    #AWS_SECRET_KEY:
   gather_facts: false
 
   tasks:
