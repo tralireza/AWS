@@ -1,9 +1,7 @@
 {
   "KeyName": "MyRSA",
   "ImageId": "ami-069aabeee6f53e7bf",
-  "SecurityGroupIds": [ "sg-028a1c6e15aefc531" ],
   "InstanceType": "t3.micro",
-  "SubnetId": "subnet-f61c6afa",
   "BlockDeviceMappings": [
     {
       "DeviceName": "/dev/xvda",
@@ -12,6 +10,13 @@
         "VolumeType": "standard",
         "VolumeSize": 8
       }
+    }
+  ],
+  "NetworkInterfaces": [
+    {
+      "DeleteOnTermination": false,
+      "DeviceIndex": 0,
+      "NetworkInterfaceId": "eni-09351b9cdb1bac604"
     }
   ]
 }
