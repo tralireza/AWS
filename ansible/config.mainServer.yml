@@ -9,6 +9,7 @@
       msg: "=> {{ ec2Store_passwd }}   Q: {{ ec2Store_passwd|quote }}"
     tags:
       - vars
+      - ec2str
 
   - yum:
       name: httpd, mod_ssl, screen, postfix, squid, bind, bash, tmux, whois
@@ -16,26 +17,22 @@
     tags:
       - ypkg
 
-  - shell: mount | grep /ec2Store | wc -l
+  - shell: mount| grep /ec2Store| wc -l
     args:
       executable: /bin/bash
     register: ec2Store_mountState
-    tags:
-      - ec2str
-  - file:
-      path: /ec2Store
-      state: directory
+    tags: ec2str
+  - block:
+    - file:
+        path: /ec2Store
+        state: directory
+    - shell: (cryptsetup close ec2Store || true)
+        && echo {{ ec2Store_passwd|quote }} | cryptsetup create ec2Store /dev/xvdx
+        && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
+      args:
+        executable: /bin/bash
     when: ec2Store_mountState.stdout == "0"
-    tags:
-      - ec2str
-  - shell: (cryptsetup close ec2Store || true)
-      && echo {{ ec2Store_passwd|quote }} | cryptsetup create ec2Store /dev/xvdx
-      && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
-    args:
-      executable: /bin/bash
-    when: ec2Store_mountState.stdout == "0"
-    tags:
-      - ec2str
+    tags: ec2str
 
   - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
       && (ln -s /ec2Store/{{ item }} /etc/{{ item }} || true)
