@@ -7,16 +7,8 @@
   tasks:
   - ec2_eip:
       ip: "{{ eip }}"
-      device_id: "{{ nic }}"
+      device_id: "{{ msi }}"
       allow_reassociation: yes
-      in_vpc: true
-
-  - ec2_eni:
-      eni_id: "{{ nic }}"
-      instance_id: "{{ msi }}"
-      device_index: 1
-      delete_on_termination: false
-      attached: true
 
   - ec2_vol:
       id: "{{ ec2str }}"
