@@ -3,15 +3,19 @@
   gather_facts: false
   pre_tasks:
     - include_vars: vars.yml
+      tags: 
+        - always
 
   tasks:
   - ec2_eip:
       ip: "{{ eip }}"
       device_id: "{{ msi }}"
       allow_reassociation: yes
+    tags: eip
 
   - ec2_vol:
       id: "{{ ec2str }}"
       instance: "{{ msi }}"
       device_name: "/dev/xvdx"
       delete_on_termination: false
+    tags: vol
