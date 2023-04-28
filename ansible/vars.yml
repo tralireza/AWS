@@ -3,5 +3,5 @@ region: us-east-1
 eip: 54.84.117.224
 ip6: 2600:1f10:475a:be0f::27
 
-msi: i-090901948184f6c11
+msi: i-01de2d64ab17ea04c
 ec2str: vol-0350f13de832f365a
