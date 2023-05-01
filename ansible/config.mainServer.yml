@@ -12,7 +12,7 @@
       - ec2str
 
   - yum:
-      name: httpd, mod_ssl, screen, postfix, squid, bind, bash, tmux, whois
+      name: httpd, mod_ssl, postfix, squid, bind, bash, tmux, socat, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
       state: latest
     tags: ypkg
 
