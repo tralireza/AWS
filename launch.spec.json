@@ -1,7 +1,7 @@
 {
   "KeyName": "MyRSA",
   "ImageId": "ami-069aabeee6f53e7bf",
-  "InstanceType": "t3.micro",
+  "InstanceType": "t2.micro",
   "BlockDeviceMappings": [
     {
       "DeviceName": "/dev/xvda",
@@ -16,7 +16,7 @@
     {
       "DeleteOnTermination": false,
       "DeviceIndex": 0,
-      "NetworkInterfaceId": "eni-09351b9cdb1bac604"
+      "NetworkInterfaceId": "eni-0c189b31eb3005be1"
     }
   ]
 }
