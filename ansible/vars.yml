@@ -1,7 +1,7 @@
 ---
 region: us-east-1
 eip: 54.84.117.224
-ip6: 2600:1f10:475a:be0f::27
+ip6: 2600:1f10:475a:be0a::27
 
-msi: i-05ada0e6f0c01fc14
+msi: i-04e9a09a38818d7a6
 ec2str: vol-0350f13de832f365a
