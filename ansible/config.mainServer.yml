@@ -39,7 +39,7 @@
     tags: etc
 
   - block:
-    - shell: hostname ec2Server && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
+    - shell: hostname ec2svr && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
     - systemd:
         state: restarted
         name: "{{ item }}"
