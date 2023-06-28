@@ -38,6 +38,11 @@
     loop: ["httpd", "postfix", "squid"]
     tags: etc
 
+  - user:
+      name: "{{ item }}"
+    loop: ["spf", "dkim"]
+    tags: usr
+
   - block:
     - shell: hostname ec2svr && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
     - systemd:
