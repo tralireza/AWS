@@ -40,6 +40,8 @@
 
   - user:
       name: "{{ item }}"
+      comment: "{{ item }} User"
+      shell: /sbin/nologin
     loop: ["spf", "dkim"]
     tags: usr
 
