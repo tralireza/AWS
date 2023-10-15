@@ -46,6 +46,17 @@
     tags: usr
 
   - block:
+    - file:
+        path: /etc/systemd/system/postfix.service.d
+        state: directory
+    - copy:
+        content: "[Service]\nPIDFile=/ec2str/spool/postfix/pid/master.pid\n"
+        dest: /etc/systemd/system/postfix.service.d/override.conf
+        mode: 0644
+    - shell: systemctl daemon-reload
+    tags: pid
+
+  - block:
     - shell: hostname ec2svr && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
     - systemd:
         state: restarted
