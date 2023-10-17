@@ -56,6 +56,9 @@
     - shell: systemctl daemon-reload
     tags: pid
 
+  - shell: /ec2str/dkimproxy/init-script start
+    tags: dkim
+
   - block:
     - shell: hostname ec2svr && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
     - systemd:
