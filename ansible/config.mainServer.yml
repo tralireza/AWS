@@ -12,7 +12,7 @@
       - ec2str
 
   - yum:
-      name: httpd, mod_ssl, postfix, squid, bind, bash, tmux, socat, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
+      name: httpd, mod_ssl, squid, bind, bash, tmux, socat, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
       state: latest
     tags: ypkg
 
@@ -34,8 +34,12 @@
     tags: ec2str
 
   - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
-      && (ln -s /ec2Store/{{ item }} /etc/{{ item }} || true)
+      && (ln -s /ec2str/{{ item }} /etc/{{ item }} || true)
     loop: ["httpd", "postfix", "squid"]
+    tags: etc
+
+  - shell: (mv /etc/named.conf /etc/named.conf___ || true)
+      && (ln -s /ec2str/named/named.conf /etc/named.conf || true)
     tags: etc
 
   - user:
