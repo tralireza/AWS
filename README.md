@@ -21,5 +21,5 @@ $ export AWS_ACCESS_KEY_ID="..."; export AWS_SECRET_ACCESS_KEY="..."
 
 ## DNS-SEC
 ```bash
-$ ssh-keygen -r alireza.me
+$ ansible -i hosts.yml alireza.me -m shell -a "ssh-keygen -r alireza.me"
 ```
