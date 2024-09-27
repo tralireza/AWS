@@ -1,0 +1,9 @@
+ansible [core 2.17.4]
+  config file = /Users/alireza/AWS.git/ansible.cfg
+  configured module search path = ['/Users/alireza/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/alireza/AWS.git/.venv/lib/python3.12/site-packages/ansible
+  ansible collection location = /Users/alireza/.ansible/collections:/usr/share/ansible/collections
+  executable location = /Users/alireza/AWS.git/.venv/bin/ansible
+  python version = 3.12.6 (v3.12.6:a4a2d2b0d85, Sep  6 2024, 16:08:03) [Clang 13.0.0 (clang-1300.0.29.30)] (/Users/alireza/AWS.git/.venv/bin/python3.12)
+  jinja version = 3.1.4
+  libyaml = True
