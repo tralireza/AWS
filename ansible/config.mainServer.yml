@@ -39,6 +39,10 @@
     when: ec2Store_mountState.stdout == "0"
     tags: ec2str
 
+  - shell: tar -C / -xzf /ec2str/postfix-390.tar.gz
+    tags: pfx3
+    name: "(shell) install Postfix3"
+
   - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
       && (ln -s /ec2str/{{ item }} /etc/{{ item }} || true)
     loop: ["httpd", "postfix", "squid"]
