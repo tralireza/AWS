@@ -12,13 +12,13 @@
       - ec2str
 
   - yum:
-      name: httpd, mod_ssl, squid, bind, bash, tmux, socat, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
+      name: bind, openssl11-devel, httpd, mod_ssl, squid, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
       state: latest
     tags: ypkg
-    name: "(yum) install packages(x)"
+    name: "yum: install packages(x)"
 
-  - shell: yum install -y perl-Mail-SPF perl-Mail-DKIM perl-Sys-Syslog httpd mod_ssl squid
-    name: "(shell) install packages"
+  - shell: yum install -y bind openssl11-devel perl-Mail-SPF perl-Mail-DKIM perl-Sys-Syslog httpd mod_ssl squid
+    name: "shell: install packages"
     tags: pkg
 
   - shell: mount| grep /ec2Store| wc -l
@@ -41,18 +41,18 @@
 
   - shell: tar -C / -xzf /ec2str/postfix-390.tar.gz
     tags: pfx3
-    name: "(shell) install Postfix3"
+    name: "shell: install Postfix3"
 
   - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
       && (ln -s /ec2str/{{ item }} /etc/{{ item }} || true)
     loop: ["httpd", "postfix", "squid"]
     tags: etc
-    name: "(shell) /etc/DIR(H|P|S)"
+    name: "shell: /etc/DIR(H|P|S)"
 
   - shell: (mv /etc/named.conf /etc/named.conf___ || true)
       && (ln -s /ec2str/named/named.conf /etc/named.conf || true)
     tags: etc
-    name: "(shell) /etc/named.conf"
+    name: "shell: /etc/named.conf"
 
   - user:
       name: "{{ item }}"
@@ -60,37 +60,37 @@
       shell: /sbin/nologin
     loop: ["spf", "dkim"]
     tags: usr
-    name: "(user) SPF & DKIM user"
+    name: "user: SPF & DKIM user"
 
   - block:
     - file:
         path: /etc/systemd/system/postfix.service.d
         state: directory
-      name: "(file) Postfix override"
+      name: "file: Postfix override"
     - copy:
         content: "[Service]\nPIDFile=/ec2str/spool/postfix/pid/master.pid\n"
         dest: /etc/systemd/system/postfix.service.d/override.conf
         mode: 0644
-      name: "(copy) override.conf"
+      name: "copy: override.conf"
     - shell: systemctl daemon-reload
-      name: "(shell) Postfix restart"
+      name: "shell: [P] daemon-reload"
     tags: pid
-    name: "(block) Postfix master.pid"
+    name: "block: Postfix master.pid"
 
   - shell: /ec2str/dkimproxy/init-script start
     tags: dkim
-    name: "(shell) start DKIM"
+    name: "shell: start DKIM in/out"
 
   - block:
     - shell: hostname ec2svr && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
-      name: "(shell) ec2svr & PS1"
+      name: "shell: ec2svr & PS1"
     - systemd:
         state: restarted
         name: "{{ item }}"
         enabled: yes
         masked: no
-      loop: ["httpd", "rsyslog", "squid"]
-      name: "(systemd) restart H|L|S"
+      loop: ["httpd", "rsyslog", "squid", "named"]
+      name: "systemd: restart H|L|S|N"
     tags: run
 
   - copy:
@@ -98,4 +98,4 @@
       dest: /root/.ssh/authorized_keys
       mode: 0400
     tags: key
-    name: "(copy) authorized_keys"
+    name: "copy: authorized_keys"
