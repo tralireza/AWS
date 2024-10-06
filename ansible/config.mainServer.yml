@@ -15,7 +15,11 @@
       name: httpd, mod_ssl, squid, bind, bash, tmux, socat, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
       state: latest
     tags: ypkg
-    name: "(yum) install packages"
+    name: "(yum) install packages(x)"
+
+  - shell: yum install -y perl-Mail-SPF perl-Mail-DKIM perl-Sys-Syslog httpd mod_ssl squid
+    name: "(shell) install packages"
+    tags: pkg
 
   - shell: mount| grep /ec2Store| wc -l
     args:
