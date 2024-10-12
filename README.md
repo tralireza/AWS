@@ -23,3 +23,9 @@ $ export AWS_ACCESS_KEY_ID="..."; export AWS_SECRET_ACCESS_KEY="..."
 ```bash
 $ ansible -i hosts.yml alireza.me -m shell -a "ssh-keygen -r alireza.me"
 ```
+
+## IPTables
+```bash
+$ ansible -i hosts.yml alireza.me -m shell -a "modprobe xt_recent ip_list_tot=512 ip_pkt_list_tot=32"
+$ ansible -i hosts.yml alireza.me -m shell -a "cat /proc/net/xt_recent/DNS"
+```
