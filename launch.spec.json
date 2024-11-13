@@ -1,5 +1,5 @@
 {
-  "KeyName": "MyRSA",
+  "KeyName": "My.rsa",
   "ImageId": "ami-069aabeee6f53e7bf",
   "InstanceType": "t3.micro",
   "BlockDeviceMappings": [
