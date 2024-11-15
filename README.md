@@ -9,7 +9,8 @@
 4. ansible-playbook -i hosts.yml ansible/dns.yml -e '{"ip6": ""}'
 
 ## ansible
-1. ansible -i hosts.yml alireza.me -m shell -a "echo '* * * * * date >/ec2str/ts.txt' | crontab -"
+1. ansible -i hosts.yml alireza.me -m shell -a "cat /ec2str/crontab.l | crontab -"
+    + asnible -i hosts.yml alireza.me -m shell -a "crontab -l"
 2. ansible -i hosts.yml alireza.me -m shell -a "uname -a" > msi.version
 + ansible -i hosts.yml alireza.me -m shell -a "cd /ec2str/tomcat8 && nohup bin/catalina.sh start"
 + ansible -i hosts.yml alireza.me -m shell -a "named -u named -c /ec2str/named/named.conf"
