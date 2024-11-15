@@ -28,6 +28,8 @@ $ ansible -i hosts.yml alireza.me -m shell -a "ssh-keygen -r alireza.me"
 ## IPTables
 ```bash
 $ ansible -i hosts.yml alireza.me -m shell -a "modprobe xt_recent ip_list_tot=2048 ip_pkt_list_tot=32"
+$ ansible -i hosts.yml alireza.me -m shell -a "iptables-restore /ec2str/ipt.rules"
+$ ansible -i hosts.yml alireza.me -m shell -a "ip6tables-restore /ec2str/ip6t.rules"
 $ ansible -i hosts.yml alireza.me -m shell -a "cat /sys/module/xt_recent/parameters/ip_list_tot"
 $ ansible -i hosts.yml alireza.me -m shell -a "cat /proc/net/xt_recent/DEFAULT"
 ```
