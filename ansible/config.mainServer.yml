@@ -40,6 +40,10 @@
     name: "shell: install packages"
     tags: pkg
 
+  - shell: yum install -y certbot python2-certbot-apache mailx
+    name: "shell: install certbot & mailx"
+    tags: pkg
+
   - shell: mount| grep /ec2Store| wc -l
     args:
       executable: /bin/bash
