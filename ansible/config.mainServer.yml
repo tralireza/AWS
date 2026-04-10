@@ -25,6 +25,10 @@
     tags: key
     name: "copy: authorized_keys"
 
+  - shell: amazon-linux-extras install -y epel
+    name: "shell: install EPEL repo"
+    tags: pkg
+
   - yum:
       name: bind, openssl11-devel, httpd, mod_ssl, squid, perl-Mail-SPF, perl-Mail-DKIM, perl-Sys-Syslog
       state: latest
