@@ -92,7 +92,7 @@
     tags: pid
     name: "block: Postfix master.pid"
 
-  - shell: /ec2str/dkimproxy/init-script start
+  - shell: (rm -f /ec2str/dkimproxy/var/run/dkimproxy_*.pid || true) && /ec2str/dkimproxy/init-script start 
     tags: dkim
     name: "shell: start DKIM in/out"
 
