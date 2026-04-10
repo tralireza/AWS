@@ -77,6 +77,10 @@
     tags: etc
     name: "shell: /etc/named.conf"
 
+  - shell: cp /ec2str/postfix/aliases /etc/aliases && newaliases
+    name: "shell: postfix aliases"
+    tags: etc
+
   - user:
       name: "{{ item }}"
       comment: "{{ item }} User"
