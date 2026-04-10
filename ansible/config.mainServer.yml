@@ -36,12 +36,12 @@
     name: "yum: install packages(x)"
     when: false
 
-  - shell: yum install -y bind openssl11-devel perl-Mail-SPF perl-Mail-DKIM perl-Sys-Syslog httpd mod_ssl squid
+  - shell: yum install -y bind openssl11-devel perl-Mail-SPF perl-Mail-DKIM perl-Sys-Syslog httpd mod_ssl squid mailx
     name: "shell: install packages"
     tags: pkg
 
-  - shell: yum install -y certbot python2-certbot-apache mailx
-    name: "shell: install certbot & mailx"
+  - shell: yum install -y certbot python2-certbot-apache
+    name: "shell: install certbot"
     tags: pkg
 
   - shell: mount| grep /ec2Store| wc -l
