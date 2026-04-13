@@ -16,7 +16,7 @@
     {
       "DeleteOnTermination": false,
       "DeviceIndex": 0,
-      "NetworkInterfaceId": "eni-09351b9cdb1bac604"
+      "NetworkInterfaceId": "eni-0c189b31eb3005be1"
     }
   ]
 }
