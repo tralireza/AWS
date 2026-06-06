@@ -6,6 +6,7 @@
 
   pre_tasks:
     - include_vars: vars.yml   # provides ec2str (used by the cryptsetup by-id path)
+      name: "vars: load vars.yml"
       tags:
         - always
 
@@ -15,6 +16,7 @@
     tags:
       - vars
       - ec2str
+    name: "debug: ec2Store_passwd"
 
   - systemd:
       name: "{{ item }}"
@@ -69,11 +71,13 @@
       executable: /bin/bash
     register: ec2Store_mountState
     tags: ec2str
+    name: "shell: ec2Store mount?"
 
   - block:
     - file:
         path: /ec2Store
         state: directory
+      name: "file: /ec2Store dir"
     # cryptsetup target: stable by-id path for the data volume (ec2str with the
     # hyphen stripped = the NVMe serial). On AL2023/Nitro this resolves to the same
     # device as the legacy /dev/xvdx symlink (was: cryptsetup create ec2Store /dev/xvdx).
@@ -86,6 +90,7 @@
       args:
         executable: /bin/bash
       no_log: true   # passphrase is on the command line — keep it out of logs
+      name: "shell: cryptsetup open"
     when: ec2Store_mountState.stdout == "0"
     tags: ec2str
 
@@ -106,7 +111,7 @@
       name: postfix
       state: present
     tags: pfx3
-    name: "dnf: Postfix3"
+    name: "dnf: install Postfix3"
 
   - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
       && (ln -s /ec2str/{{ item }} /etc/{{ item }} || true)
@@ -159,7 +164,7 @@
         enabled: yes
         masked: no
       loop: ["httpd", "rsyslog", "squid", "postfix", "named"]
-      name: "systemd: restart H|L|S|P|N"
+      name: "systemd: H|L|S|P|N"
     tags: run
 
   # ---- Persist SSH host keys across ephemeral-root relaunches ----
@@ -171,12 +176,12 @@
   # No sshd_config change (these are sshd's default HostKey paths).  Tag: sshfp
   - name: "block: persist SSH host keys"
     block:
-    - name: "stat: canonical key present (mount ok)"
+    - name: "stat: canonical key"
       stat:
         path: /ec2str/ssh/ssh_host_ed25519_key
       register: hk_canonical
       failed_when: not hk_canonical.stat.exists
-    - name: "copy: persistent SSH host keys /ec2str -> /etc/ssh"
+    - name: "copy: SSH host keys"
       copy:
         src: "/ec2str/ssh/{{ item.name }}"
         dest: "/etc/ssh/{{ item.name }}"
@@ -191,23 +196,23 @@
         - { name: ssh_host_ed25519_key,     group: ssh_keys, mode: "0640" }
         - { name: ssh_host_ed25519_key.pub, group: root,     mode: "0644" }
       register: sshfp_copy
-    - name: "shell: restorecon host keys (relabel sshd_key_t)"
+    - name: "shell: restorecon keys"
       shell: restorecon -v /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub
       args:
         executable: /bin/bash
       changed_when: false
-    - name: "shell: validate sshd config"
+    - name: "shell: validate sshd"
       shell: sshd -t
       args:
         executable: /bin/bash
       changed_when: false
-    - name: "systemd: restart sshd onto persistent keys"
+    - name: "systemd: restart sshd"
       systemd:
         name: sshd
         state: restarted
       when: sshfp_copy is changed
     rescue:
-    - name: "debug: host-key persist skipped"
+    - name: "debug: sshfp skipped"
       debug:
         msg: "WARNING: persistent host keys NOT applied (is /ec2str mounted?). SSH stays on boot-generated keys = one known_hosts churn this launch, never a lockout."
     tags: sshfp
