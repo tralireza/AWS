@@ -83,7 +83,7 @@
         && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
       args:
         executable: /bin/bash
-      no_log: false
+      no_log: true   # passphrase is on the command line — keep it out of logs
     when: ec2Store_mountState.stdout == "0"
     tags: ec2str
 
