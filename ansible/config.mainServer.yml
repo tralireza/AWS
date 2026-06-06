@@ -54,8 +54,11 @@
     - file:
         path: /ec2Store
         state: directory
+    # cryptsetup target: stable by-id path for the data volume (ec2str with the
+    # hyphen stripped = the NVMe serial). On AL2023/Nitro this resolves to the same
+    # device as the legacy /dev/xvdx symlink (was: cryptsetup create ec2Store /dev/xvdx).
     - shell: (cryptsetup close ec2Store || true)
-        && echo {{ ec2Store_passwd|quote }} | cryptsetup create ec2Store /dev/xvdx
+        && echo {{ ec2Store_passwd|quote }} | cryptsetup open --type plain /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_{{ ec2str | replace('-', '') }} ec2Store
         && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
       args:
         executable: /bin/bash
