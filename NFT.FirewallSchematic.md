@@ -50,10 +50,10 @@ Packet-traversal schematic of the live `inet fw` input chain (first match wins; 
 ╚══════════════════════════════════════════════════════════════════════════╝
                                      │                                      
 ╔══════════════════════════════════════════════════════════════════════════╗
-║ ⑥ EXPLICIT v6 SERVICE ALLOW                                              ║
+║ ⑥ v6 SERVICE ALLOW + CONNECTION COUNT                                    ║
 ╟──────────────────────────────────────────────────────────────────────────╢
-║ ip6 tcp dport {22,25,53,80,443} accept                                   ║
-║ ip6 udp dport 53 accept                                                  ║
+║ ip6 tcp dport {22,25,53,80,443} ct state new counter accept              ║
+║ ip6 udp dport 53 counter accept                                          ║
 ╚══════════════════════════════════════════════════════════════════════════╝
                                      │                                      
                policy ACCEPT  →  ACCEPT   (allow-by-default)                
@@ -84,5 +84,6 @@ detectors (×8) : v4_smtp v4_ssh_1h v4_ssh_2h v4_http v4_https · v6_smtp v6_ssh
 - **Stateful** — ① accepts established; stages ③-⑥ only ever see `ct state new`.
 - **Allow-by-default** — no terminal `drop`; `policy accept` passes whatever survives.
 - **`v4_ssh_2h` = 7/hour** (≈ the old 6.5/hour = 13-per-2h, rounded up), burst 13.
+- **v6 connection counts** — ⑥ counts v6 service conns separately (TCP via `ct state new`; UDP DNS); ⑤'s `meta l4proto` counters are dual-family, so per-port `v4 ≈ ⑤ − ⑥`.
 - Load `nft -f /ec2str/firewall.nft` · validate `nft -c -f` · inspect ban `nft list set inet fw v4_block`.
 
