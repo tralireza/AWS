@@ -1,7 +1,10 @@
 {
   "KeyName": "My.rsa",
-  "ImageId": "ami-069aabeee6f53e7bf",
+  "ImageId": "ami-098e39bafa7e7303d",
   "InstanceType": "t3.micro",
+  "IamInstanceProfile": {
+    "Name": "SSMInstanceRole"
+  },
   "BlockDeviceMappings": [
     {
       "DeviceName": "/dev/xvda",
