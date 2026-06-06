@@ -168,7 +168,7 @@
   # boot-generated ones, fix owner/perms + SELinux label (sshd_key_t), then restart sshd.
   # Needs /ec2str mounted (ec2str step). LAST in the play so an sshd-restart reconnect can't
   # skip other tasks; block/rescue so a missing mount never aborts the play or drops SSH.
-  # No sshd_config change (these are sshd's default HostKey paths).  Tag: hostkeys
+  # No sshd_config change (these are sshd's default HostKey paths).  Tag: sshfp
   - name: "block: persist SSH host keys"
     block:
     - name: "stat: canonical key present (mount ok)"
@@ -190,7 +190,7 @@
         - { name: ssh_host_ecdsa_key.pub,   group: root,     mode: "0644" }
         - { name: ssh_host_ed25519_key,     group: ssh_keys, mode: "0640" }
         - { name: ssh_host_ed25519_key.pub, group: root,     mode: "0644" }
-      register: hostkeys_copy
+      register: sshfp_copy
     - name: "shell: restorecon host keys (relabel sshd_key_t)"
       shell: restorecon -v /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub
       args:
@@ -205,9 +205,9 @@
       systemd:
         name: sshd
         state: restarted
-      when: hostkeys_copy is changed
+      when: sshfp_copy is changed
     rescue:
     - name: "debug: host-key persist skipped"
       debug:
         msg: "WARNING: persistent host keys NOT applied (is /ec2str mounted?). SSH stays on boot-generated keys = one known_hosts churn this launch, never a lockout."
-    tags: hostkeys
+    tags: sshfp
