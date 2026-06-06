@@ -49,6 +49,8 @@
         - squid
         - mailx
         - rsyslog
+        - nftables   # native AL2023 firewall (replaces AL2 iptables + xt_recent)
+        - cronie     # cron daemon (not preinstalled on AL2023) — runs /ec2str/crontab.l jobs
       state: present
     tags: pkg
     name: "dnf: install packages"
@@ -86,6 +88,13 @@
       no_log: true   # passphrase is on the command line — keep it out of logs
     when: ec2Store_mountState.stdout == "0"
     tags: ec2str
+
+  # load nftables firewall from the encrypted volume — needs the nftables pkg + /ec2str
+  # mounted (above), so it runs here, NOT via nftables.service at boot (/ec2str isn't
+  # mounted that early). Tag: fw  →  run standalone with `-t fw`.
+  - shell: nft -f /ec2str/firewall.nft
+    tags: fw
+    name: "nft: load firewall"
 
   # AL2 tarball (Postfix 3.9.0, linked against OpenSSL 1.1) — won't link on AL2023.
   # Replaced by the native AL2023 package (3.7.2, OpenSSL 3.5) below.
