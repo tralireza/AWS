@@ -4,6 +4,11 @@
     # ec2Store_passwd: ""
     # -e "{ec2Store_passwd: 'MyPasswd'}"
 
+  pre_tasks:
+    - include_vars: vars.yml   # provides ec2str (used by the cryptsetup by-id path)
+      tags:
+        - always
+
   tasks:
   - debug:
       msg: "=> {{ ec2Store_passwd }}   Q: {{ ec2Store_passwd|quote }}"
@@ -15,7 +20,7 @@
       name: "{{ item }}"
       state: stopped
     loop: ["postfix"]
-    tags: stop
+    tags: stp
     name: "systemd: instance's |P"
     ignore_errors: true   # postfix may not be installed yet on a fresh AL2023 boot
 
@@ -70,12 +75,15 @@
     # cryptsetup target: stable by-id path for the data volume (ec2str with the
     # hyphen stripped = the NVMe serial). On AL2023/Nitro this resolves to the same
     # device as the legacy /dev/xvdx symlink (was: cryptsetup create ec2Store /dev/xvdx).
+    # Cipher/key-size/hash pinned explicitly (= the original `create` defaults: cipher &
+    # key-size confirmed via dmsetup table, hash = plain-mode default ripemd160) so the
+    # volume opens correctly regardless of future cryptsetup default changes.
     - shell: (cryptsetup close ec2Store || true)
-        && echo {{ ec2Store_passwd|quote }} | cryptsetup open --type plain /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_{{ ec2str | replace('-', '') }} ec2Store
+        && echo {{ ec2Store_passwd|quote }} | cryptsetup open --type plain --cipher aes-cbc-essiv:sha256 --key-size 256 --hash ripemd160 /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_{{ ec2str | replace('-', '') }} ec2Store
         && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
       args:
         executable: /bin/bash
-      no_log: true   # passphrase is on the command line — keep it out of logs
+      no_log: false
     when: ec2Store_mountState.stdout == "0"
     tags: ec2str
 
