@@ -163,8 +163,8 @@
         name: "{{ item }}"
         enabled: yes
         masked: no
-      loop: ["httpd", "rsyslog", "squid", "postfix", "named"]
-      name: "systemd: H|L|S|P|N"
+      loop: ["httpd", "rsyslog", "squid", "postfix", "named", "crond"]
+      name: "systemd: H|L|S|P|N|C"
     tags: run
 
   # ---- Persist SSH host keys across ephemeral-root relaunches ----
