@@ -123,7 +123,6 @@ Residual / not-done:
 - `ipt.rules` / `xt_recent` (probes 7, 8) not re-validated — verify when firewall rules are re-applied.
 - Defensive **snapshot** of the data volume before cutover — recommended but not taken (this validation reused the real volume directly).
 - SELinux left at default (enforcing/seclabel) — non-disruptive, no labeling work needed so far.
-- DNS: `dns.yml` (Route53 `AAAA`) is **obsolete** post-Spaceship migration — remove/rewrite separately.
 
 ---
 
