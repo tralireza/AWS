@@ -1,0 +1,25 @@
+{
+  "KeyName": "My.rsa",
+  "ImageId": "ami-098e39bafa7e7303d",
+  "InstanceType": "t3.micro",
+  "IamInstanceProfile": {
+    "Name": "SSMInstanceRole"
+  },
+  "BlockDeviceMappings": [
+    {
+      "DeviceName": "/dev/xvda",
+      "Ebs": {
+        "DeleteOnTermination": true,
+        "VolumeType": "standard",
+        "VolumeSize": 8
+      }
+    }
+  ],
+  "NetworkInterfaces": [
+    {
+      "DeleteOnTermination": false,
+      "DeviceIndex": 0,
+      "NetworkInterfaceId": "eni-0f49a23347e1b81b5"
+    }
+  ]
+}

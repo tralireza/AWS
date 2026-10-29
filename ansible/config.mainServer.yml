@@ -1,0 +1,218 @@
+---
+- hosts: vServer
+  vars:
+    # ec2Store_passwd: ""
+    # -e "{ec2Store_passwd: 'MyPasswd'}"
+
+  pre_tasks:
+    - include_vars: vars.yml   # provides ec2str (used by the cryptsetup by-id path)
+      name: "vars: load vars.yml"
+      tags:
+        - always
+
+  tasks:
+  - debug:
+      msg: "=> {{ ec2Store_passwd }}   Q: {{ ec2Store_passwd|quote }}"
+    tags:
+      - vars
+      - ec2str
+    name: "debug: ec2Store_passwd"
+
+  - systemd:
+      name: "{{ item }}"
+      state: stopped
+    loop: ["postfix"]
+    tags: stp
+    name: "systemd: instance's |P"
+    ignore_errors: true   # postfix may not be installed yet on a fresh AL2023 boot
+
+  - copy:
+      content: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAgEAq3sysHMyiP78WExRpUEK78ANJS5dZLzPAotoh3gjTt8mNFLYWXFg9wL26Cr2WND1FId76bZ0+TBmW1ZJlEImXE7IfbKfVSNmUBv2v5fYUMyXtNrm2q9HWNRP3Me2WcLgOrjs/ShrMp9B2T1rVQBwV5YRptZwin8K3526XRiRTPCo50ZSfHmErpf7h0AnEasKWC3Nj2T1NPOm13uLS9mFHCsNBH6W1UXLQHQZL7Ycaz0VT1T5R5WkAwXKw8hLS2aMIS43Om0AnGsGDJq6rFN1wj2hd/gJIestlNW4EByaIHJETxy9gMQGEeEkWwRG1hw6+2v1/CST8odo8cBL6H1Y+RpYw1RSnwx2sGzmwJrAhrBk8qNO2DdvTPlYO1jKLXp279BNMqelgxy/iXR3/gG3Z/mM/8XiIH4fi0wYOQIDLwAKm+n7GGKAYCJTwd+OC3/jxpTOQRtj9xhv422OAdUgTctKmJyXjm+KgiecI5QTqzZi2vXxMJnoXIZltM4bSRW6zUNZefenQ8wSx8zpTdBpcBfHXQR3xQeNHQ8IJIFW/bKyk/mywi3yWYPs5auJ5BRSWFAkGdCdFYaFnhzaLUuWFapPJ3E+mDj8J2uNN8f98RBQzT3oO63t1EDamwXydlBHB8JRFFfS+k22wcrWGhbbpOXP6JUgZI7o9D5N/8tHuHE= My.rsa\necdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABYrSEK/OsEcWv/f/S3/QbtMOlXvsRRRYpdALh5ZBI0nBdZkkJxyK4t8yWTD1yHgngEHk9GN3QugDoll2rk7CxqtAFCqBuyOHccIHYq8FDlgd/lMLwqVQtPN1kQ4s52XSPl5xzujd2pvmlXWz5nzYMxvczHfW3wAHvcdsi8QOPT4tj7nQ== My.ec\n"
+      dest: /root/.ssh/authorized_keys
+      mode: 0400
+    tags: key
+    name: "copy: authorized_keys"
+
+  # EPEL removed: AL2023 has no amazon-linux-extras, and every required package
+  # (incl. certbot, perl-Mail-SPF, perl-Mail-DKIM) is in the core amazonlinux repo.
+
+  # AL2023 (Python 3.9): native dnf: module replaces the old shell-yum workarounds.
+  # openssl11-devel -> openssl-devel (OpenSSL 3.x); rsyslog added (not preinstalled,
+  # needed by the restart task); mailx still in core.
+  - dnf:
+      name:
+        - bind
+        - openssl-devel
+        - perl-Mail-SPF
+        - perl-Mail-DKIM
+        - perl-Sys-Syslog
+        - httpd
+        - mod_ssl
+        - squid
+        - mailx
+        - rsyslog
+        - nftables   # native AL2023 firewall (replaces AL2 iptables + xt_recent)
+        - cronie     # cron daemon (not preinstalled on AL2023) — runs /ec2str/crontab.l jobs
+      state: present
+    tags: pkg
+    name: "dnf: install packages"
+
+  # AL2023: python2-certbot-apache -> python3-certbot-apache (no Python 2); both in core
+  - dnf:
+      name:
+        - certbot
+        - python3-certbot-apache
+      state: present
+    tags: pkg
+    name: "dnf: install certbot"
+
+  - shell: mount| grep /ec2Store| wc -l
+    args:
+      executable: /bin/bash
+    register: ec2Store_mountState
+    tags: ec2str
+    name: "shell: ec2Store mount?"
+
+  - block:
+    - file:
+        path: /ec2Store
+        state: directory
+      name: "file: /ec2Store dir"
+    # cryptsetup target: stable by-id path for the data volume (ec2str with the
+    # hyphen stripped = the NVMe serial). On AL2023/Nitro this resolves to the same
+    # device as the legacy /dev/xvdx symlink (was: cryptsetup create ec2Store /dev/xvdx).
+    # Cipher/key-size/hash pinned explicitly (= the original `create` defaults: cipher &
+    # key-size confirmed via dmsetup table, hash = plain-mode default ripemd160) so the
+    # volume opens correctly regardless of future cryptsetup default changes.
+    - shell: (cryptsetup close ec2Store || true)
+        && echo {{ ec2Store_passwd|quote }} | cryptsetup open --type plain --cipher aes-cbc-essiv:sha256 --key-size 256 --hash ripemd160 /dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_{{ ec2str | replace('-', '') }} ec2Store
+        && mount /dev/mapper/ec2Store /ec2Store && ln -s /ec2Store /ec2str
+      args:
+        executable: /bin/bash
+      no_log: true   # passphrase is on the command line — keep it out of logs
+      name: "shell: cryptsetup open"
+    when: ec2Store_mountState.stdout == "0"
+    tags: ec2str
+
+  # load nftables firewall from the encrypted volume — needs the nftables pkg + /ec2str
+  # mounted (above), so it runs here, NOT via nftables.service at boot (/ec2str isn't
+  # mounted that early). Tag: fw  →  run standalone with `-t fw`.
+  - shell: nft -f /ec2str/fw/firewall.nft
+    tags: fw
+    name: "nft: load firewall"
+
+  # AL2 tarball (Postfix 3.9.0, linked against OpenSSL 1.1) — won't link on AL2023.
+  # Replaced by the native AL2023 package (3.7.2, OpenSSL 3.5) below.
+  # - shell: tar -C / -xzf /ec2str/postfix-390.tar.gz
+  #   tags: pfx3
+  #   name: "shell: install Postfix3"
+
+  - dnf:
+      name: postfix
+      state: present
+    tags: pfx3
+    name: "dnf: install Postfix3"
+
+  - shell: (mv /etc/{{ item }} /etc/{{ item }}___ || true)
+      && (ln -s /ec2str/{{ item }} /etc/{{ item }} || true)
+    loop: ["httpd", "postfix", "squid"]
+    tags: etc
+    name: "shell: /etc/DIR(H|P|S)"
+
+  - shell: (mv /etc/named.conf /etc/named.conf___ || true)
+      && (ln -s /ec2str/named/named.conf /etc/named.conf || true)
+    tags: etc
+    name: "shell: /etc/named.conf"
+
+  - shell: cp /ec2str/postfix/aliases /etc/aliases && newaliases
+    name: "shell: postfix aliases"
+    tags: etc
+
+  - user:
+      name: "{{ item }}"
+      comment: "{{ item }} User"
+      shell: /sbin/nologin
+    loop: ["spf", "dkim"]
+    tags: usr
+    name: "user: SPF & DKIM user"
+
+  - block:
+    - file:
+        path: /etc/systemd/system/postfix.service.d
+        state: directory
+      name: "file: Postfix override"
+    - copy:
+        content: "[Service]\nPIDFile=/ec2str/spool/postfix/pid/master.pid\n"
+        dest: /etc/systemd/system/postfix.service.d/override.conf
+        mode: 0644
+      name: "copy: override.conf"
+    - shell: systemctl daemon-reload
+      name: "shell: [P] daemon-reload"
+    tags: pid
+    name: "block: Postfix master.pid"
+
+  - shell: (rm -f /ec2str/dkimproxy/var/run/dkimproxy_*.pid || true) && /ec2str/dkimproxy/init-script start 
+    tags: dkim
+    name: "shell: start DKIM in/out"
+
+  - block:
+    - shell: hostname ec2svr && echo "export PS1='\h \w \\\$ '" >> /root/.bashrc
+      name: "shell: ec2svr & PS1"
+    - systemd:
+        state: restarted
+        name: "{{ item }}"
+        enabled: yes
+        masked: no
+      loop: ["httpd", "rsyslog", "squid", "postfix", "named", "crond"]
+      name: "systemd: H|L|S|P|N|C"
+    tags: run
+
+  # ---- Persist SSH host keys across ephemeral-root relaunches ----
+  # Root volume is ephemeral, so sshd-keygen@ mints fresh keys every boot (= known_hosts
+  # churn). Canonical keys live on the encrypted /ec2str volume; copy them over the
+  # boot-generated ones, fix owner/perms + SELinux label (sshd_key_t), then restart sshd.
+  # Needs /ec2str mounted (ec2str step). LAST in the play so an sshd-restart reconnect can't
+  # skip other tasks; block/rescue so a missing mount never aborts the play or drops SSH.
+  # No sshd_config change (these are sshd's default HostKey paths).  Tag: sshfp
+  - name: "block: persist SSH host keys"
+    block:
+    - name: "stat: canonical key"
+      stat:
+        path: /ec2str/ssh/ssh_host_ed25519_key
+      register: hk_canonical
+      failed_when: not hk_canonical.stat.exists
+    - name: "copy: SSH host keys"
+      copy:
+        src: "/ec2str/ssh/{{ item.name }}"
+        dest: "/etc/ssh/{{ item.name }}"
+        remote_src: yes
+        owner: root
+        group: "{{ item.group }}"
+        mode: "{{ item.mode }}"
+        setype: sshd_key_t
+      loop:
+        - { name: ssh_host_ecdsa_key,       group: ssh_keys, mode: "0640" }
+        - { name: ssh_host_ecdsa_key.pub,   group: root,     mode: "0644" }
+        - { name: ssh_host_ed25519_key,     group: ssh_keys, mode: "0640" }
+        - { name: ssh_host_ed25519_key.pub, group: root,     mode: "0644" }
+      register: sshfp_copy
+    - name: "shell: restorecon keys"
+      shell: restorecon -v /etc/ssh/ssh_host_*_key /etc/ssh/ssh_host_*_key.pub
+      args:
+        executable: /bin/bash
+      changed_when: false
+    - name: "shell: validate sshd"
+      shell: sshd -t
+      args:
+        executable: /bin/bash
+      changed_when: false
+    - name: "systemd: restart sshd"
+      systemd:
+        name: sshd
+        state: restarted
+      when: sshfp_copy is changed
+    rescue:
+    - name: "debug: sshfp skipped"
+      debug:
+        msg: "WARNING: persistent host keys NOT applied (is /ec2str mounted?). SSH stays on boot-generated keys = one known_hosts churn this launch, never a lockout."
+    tags: sshfp
