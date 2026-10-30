@@ -101,12 +101,6 @@
     tags: fw
     name: "nft: load firewall"
 
-  # AL2 tarball (Postfix 3.9.0, linked against OpenSSL 1.1) — won't link on AL2023.
-  # Replaced by the native AL2023 package (3.7.2, OpenSSL 3.5) below.
-  # - shell: tar -C / -xzf /ec2str/postfix-390.tar.gz
-  #   tags: pfx3
-  #   name: "shell: install Postfix3"
-
   - dnf:
       name: postfix
       state: present
